@@ -6,11 +6,17 @@ class ET_7060(BaseModbusTcpController):
     def __init__(self, host):
         BaseModbusTcpController.__init__(self, host)
         self._actorDict = {
+            'Relay0': 0x0,
             'Relay1': 0x1,
             'Relay2': 0x2,
             'Relay3': 0x3,
             'Relay4': 0x4,
             'Relay5': 0x5,
-            'Relay6': 0x6
+            'DI0': 0x00,
+            'DI1': 0x01,
+            'DI2': 0x02,
+            'DI3': 0x03,
+            'DI4': 0x04,
+            'DI5': 0x05,
         }
 
