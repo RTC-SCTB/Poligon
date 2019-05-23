@@ -63,6 +63,10 @@ class BaseModbusTcpController(object):
         else:
             object.__setattr__(self, key, value)
 
+    @property
+    def actorDict(self):
+        return self._actorDict
+
     def _getRelayState(self, addr):
         """ считывает значение с реле контроллера """
         return self._client.read_coils(addr, 1, unit=self._unit).bits[0]
@@ -107,6 +111,7 @@ if __name__ == "__main__":
 
 
     controller = Controller()
+    print(controller.actorDict)
     print(controller.Relay1)
     controller.Relay1 = True
     print(controller.Relay2)
