@@ -12,7 +12,7 @@ _baseConfig = {  # базовый конфигурационный словар�
 
 
 class Tower:
-    """ Класс испытания башни """
+    """ Класс работы с устройствами в башне """
 
     def __init__(self, controller: BaseModbusTcpController, config=_baseConfig):
         self._controller = controller  # контроллер испытания
@@ -45,3 +45,4 @@ class Tower:
         self._controller.__setattr__(self._config["RedLedRelay"], True)  # выключаем все реле, кроме красного
         self._controller.__setattr__(self._config["BlueLedRelay"], False)
         self._controller.__setattr__(self._config["GreenLedRelay"], False)
+
