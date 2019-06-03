@@ -1,0 +1,21 @@
+{
+  "Tower": {
+    "ip": "192.168.255.1",
+    "invfreq": 0.1,
+    "connection": {
+      "FirstRedButton": "DI1",
+      "SecondRedButton": "DI3",
+      "FirstGreenButton": "DI0",
+      "SecondGreenButton": "DI2",
+      "RedLedRelay": "Relay1",
+      "GreenLedRelay": "Relay2",
+      "BlueLedRelay": "Relay0"
+    }
+  },
+
+  "Hatch": {
+    "Bank": "DI0",
+    "HatchRelay": "Relay0",
+    "SirenRelay": "Relay1"
+  }
+}

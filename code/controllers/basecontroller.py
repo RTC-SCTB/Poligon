@@ -29,6 +29,10 @@ class BaseModbusTcpController(object):
     def __del__(self):
         self._client.close()
 
+    def close(self):
+        """ закрыть соединение """
+        self._client.close()
+
     def __getattr__(self, item):
         if item != '_actorDict':
             if item not in self._actorDict and item[0] != "_":
