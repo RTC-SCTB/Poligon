@@ -11,4 +11,5 @@ tower = Tower(host=data["Tower"]["ip"],
 tower.start()
 
 while True:
-    time.sleep(10)
+    print(tower._towerHandle.isRedButtonPress())
+    time.sleep(0.1)
