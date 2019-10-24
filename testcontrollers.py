@@ -1,4 +1,4 @@
-from controllers.et_7060 import ET_7060
+from poligon.controllers.et_7060 import ET_7060
 import time
 
 controller = ET_7060('192.168.255.1')

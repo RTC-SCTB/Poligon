@@ -1,7 +1,7 @@
 import threading
 import time
-from controllers.basecontroller import BaseModbusTcpController
-from controllers.et_7060 import ET_7060
+from poligon.controllers.basecontroller import BaseModbusTcpController
+from poligon.cells.basecell import BaseCell
 
 _baseConfig = {  # базовый конфигурационный словарь, перечисляет все входы и выходы, задействованные испытанием
     "UpSwitch": "DI1",  # верхний кончевик, при нажатии на который лифт останавливается
@@ -17,13 +17,13 @@ _baseConfig = {  # базовый конфигурационный словар�
 
 class _ElevatorHandle:
     """ Класс работы с устройствами в подъемнике """
+    configList = ("UpSwitch", "DownSwitch",  # конфигурационный список всех значений, которые нужно установить
+                  "UpButton", "DownButton", "StopButton",
+                  "SirenRelay", "MotorStateRelay", "MotorDirRelay")
 
     def __init__(self, controller: BaseModbusTcpController, config):
         self._controller = controller  # контроллер испытания
         self._config = config
-        for item in self._config.values():  # проверка на допустимость конфигурации
-            if item not in self._controller.actorDict:
-                raise AttributeError("В контроллере данного испытания нет устройства " + item)
 
     def isUpSwitchPress(self):
         return self._controller.__getattr__(self._config["UpSwitch"])
@@ -76,17 +76,15 @@ class _ElevatorStates:
     MIDDLE = 3  # лифт едет где-то посередине
 
 
-class Elevator(threading.Thread):
+class Elevator(BaseCell):
     """ Класс автономного испытания - подъемник """
+    def __init__(self, host, controler, config=_baseConfig, invfreq=0.2, *args, **kwargs):
+        err = [attr for attr in _ElevatorHandle.configList if attr not in config]  # проверка конфигурации(первая)
+        if len(err) != 0:
+            raise AttributeError("В конфигурации не были указаны следующие параметры: {err}".format(err=err))
 
-    def __init__(self, host, config=_baseConfig, invfreq=0.2):
-        threading.Thread.__init__(self, daemon=True)
-        self._host = host
-        self._controller = ET_7060(self._host)  # создаем экземпляр контроллера
+        BaseCell.__init__(self, host, controler, config, invfreq, *args, **kwargs)
         self._elevatorHandle = _ElevatorHandle(self._controller, config)  # создаем экземляр handle подъемника
-        self._invfreq = invfreq  # частота обновления испытания
-        self._exit = False  # метка выхода из потока
-
         self._elevatorState = _ElevatorStates.STOP  # начальное состояние лифта
 
     def _update(self):
@@ -142,18 +140,63 @@ class Elevator(threading.Thread):
         self._elevatorHandle.motorState = False     # выключаем мотор
         self._elevatorState = _ElevatorStates.STOP  # переключаем состояние конечного автомата
 
-    def run(self):
-        """ тут производится обновление """
-        while not self._exit:
-            self._update()
-            time.sleep(self._invfreq)
 
-    def start(self):
-        """ запуск работы испытания """
-        self.reset()
-        threading.Thread.start(self)
+if __name__ == "__main__":
+    import time
 
-    def exit(self):
-        """ функция выхода из потока """
-        self._exit = True
-        self._controller.close()  # закрываем соединение
+    # 1 тест
+
+    # обычный пуск
+    elevator = Elevator(host="192.168.255.1", controler="et_7060", invfreq=0.1, unit=1)
+    elevator.start()
+
+    while True:
+        time.sleep(0.5)
+
+
+    # 2 тест
+    """
+    # уже созданный контроллер
+    from poligon.controllers.et_7060 import ET_7060
+    controller = ET_7060("192.168.255.1")
+    elevator = Elevator(host="192.168.255.1", controler=controller, invfreq=0.1, unit=1)
+    elevator.start()
+
+    while True:
+        time.sleep(0.5)
+    """
+
+    # 3 тест
+    """
+    # несуществующий контроллер
+    elevator = Elevator(host="192.168.255.1", controler="et_70", invfreq=0.1, unit=1)
+    """
+
+    # 4 тест
+    """
+    # ошибка конфигурации, часть словаря
+    conf = {
+        "FirstRedButton": "DI1",  # первая красная кнопка, при нажании на которую, загорается красный
+        "SecondRedButton": "DI3",  # вторая красная кнопка(опциональна)
+        "FirstGreenButton": "DI0",  # первая зеленая кнопка, при нажании на которую, загорается зеленый
+        "SecondGreenButton": "DI2",  # вторая зеленая кнопка(опциональна)
+    }
+    elevator = Elevator(host="192.168.255.1", controler="et_7060", config=conf, invfreq=0.1, unit=1)
+    """
+
+    # 5 test
+    """
+    # ошибка конфигурации, несуществующие выходы контроллера
+    conf = {  # базовый конфигурационный словарь, перечисляет все входы и выходы, задействованные испытанием
+        "UpSwitch": "DI1",  # верхний кончевик, при нажатии на который лифт останавливается
+        "DownSwitch": "DI10",  # нижний концевик, при нажатии на который лифт останавливается
+        "UpButton": "DI20",  # кнопка, при нажании на которую лифт едет вверх
+        "DownButton": "DI3",  # кнопка, при нажании на которую лифт едет вниз
+        "StopButton": "DI4",    # кнопка экстренной остановки лифта
+        "SirenRelay": "Relay0",  # реле, включающее серену
+        "MotorStateRelay": "Relay1",  # реле, включающее/выключающее драйвер мотора
+        "MotorDirRelay": "Relay2"  # реле, переключающее направление вращение мотора на драйвере
+    }
+    elevator = Elevator(host="192.168.255.1", controler="et_7060", config=conf, invfreq=0.1, unit=1)
+    """
+

@@ -1,8 +1,7 @@
 import time
-from controllers.basecontroller import BaseModbusTcpController
-import threading
 
-from controllers.et_7060 import ET_7060
+from poligon.controllers.basecontroller import BaseModbusTcpController
+from poligon.cells.basecell import BaseCell
 
 _baseConfig = {  # базовый конфигурационный словарь, перечисляет все входы и выходы, задействованные испытанием
     "FirstMine": "DI0",  # первая мина
@@ -16,13 +15,11 @@ _blinkTime = 1.0  # время, на сколько зажигается сир�
 
 class _MineHandle:
     """ Класс работы с устройствами в минах """
+    configList = ("FirstMine", "SecondMine", "ThirdMine", "SirenRelay")
 
     def __init__(self, controller: BaseModbusTcpController, config):
         self._controller = controller  # контроллер испытания
         self._config = config
-        for item in self._config.values():  # проверка на допустимость конфигурации
-            if item not in self._controller.actorDict:
-                raise AttributeError("В контроллере данного испытания нет устройства " + item)
 
     def isFirstMineActive(self):  # активирована ли первая мина
         return self._controller.__getattr__(self._config["FirstMine"])
@@ -43,16 +40,16 @@ class _MineHandle:
         self._controller.__setattr__(self._config["SirenRelay"], state)  # меняем состояние сирены
 
 
-class Mine(threading.Thread):
+class Mine(BaseCell):
     """ Класс автономного испытания - мины """
 
-    def __init__(self, host, config=_baseConfig, invfreq=0.2):
-        threading.Thread.__init__(self, daemon=True)
-        self._host = host
-        self._controller = ET_7060(self._host)  # создаем экземпляр контроллера
+    def __init__(self, host, controler, config=_baseConfig, invfreq=0.2, *args, **kwargs):
+        err = [attr for attr in _MineHandle.configList if attr not in config]  # проверка конфигурации(первая)
+        if len(err) != 0:
+            raise AttributeError("В конфигурации не были указаны следующие параметры: {err}".format(err=err))
+
+        BaseCell.__init__(self, host, controler, config, invfreq, *args, **kwargs)
         self._mineHandle = _MineHandle(self._controller, config)  # создаем экземляр handle
-        self._invfreq = invfreq  # частота обновления испытания
-        self._exit = False  # метка выхода из потока
 
         self._time = time.time()  # таймер
         self._firstMineActiveFlag = True  # флаг - показывающий активна ли первая мина
@@ -86,18 +83,58 @@ class Mine(threading.Thread):
         self._thirdMineActiveFlag = True
         self._mineHandle.sirenState = False  # выключаем сирену
 
-    def run(self):
-        """ тут производится обновление """
-        while not self._exit:
-            self._update()
-            time.sleep(self._invfreq)
 
-    def start(self):
-        """ запуск работы испытания """
-        self.reset()
-        threading.Thread.start(self)
+if __name__ == "__main__":
+    import time
 
-    def exit(self):
-        """ функция выхода из потока """
-        self._exit = True
-        self._controller.close()  # закрываем соединение
+    # 1 тест
+    """
+    # обычный пуск
+    mine = Mine(host="192.168.255.1", controler="et_7060", invfreq=0.1, unit=1)
+    mine.start()
+
+    while True:
+        time.sleep(0.5)
+    """
+
+    # 2 тест
+    """
+    # уже созданный контроллер
+    from poligon.controllers.et_7060 import ET_7060
+    controller = ET_7060("192.168.255.1")
+    mine = Mine(host="192.168.255.1", controler=controller, invfreq=0.1, unit=1)
+    mine.start()
+
+    while True:
+        time.sleep(0.5)
+    """
+
+    # 3 тест
+    """
+    # несуществующий контроллер
+    mine = Mine(host="192.168.255.1", controler="et_70", invfreq=0.1, unit=1)
+    """
+
+    # 4 тест
+    """
+    # ошибка конфигурации, часть словаря
+    conf = {
+        "FirstRedButton": "DI1",  # первая красная кнопка, при нажании на которую, загорается красный
+        "SecondRedButton": "DI3",  # вторая красная кнопка(опциональна)
+        "FirstGreenButton": "DI0",  # первая зеленая кнопка, при нажании на которую, загорается зеленый
+        "SecondGreenButton": "DI2",  # вторая зеленая кнопка(опциональна)
+    }
+    mine = Mine(host="192.168.255.1", controler="et_7060", config=conf, invfreq=0.1, unit=1)
+    """
+
+    # 5 test
+
+    # ошибка конфигурации, несуществующие выходы контроллера
+    conf = {  # базовый конфигурационный словарь, перечисляет все входы и выходы, задействованные испытанием
+        "FirstMine": "DI10",  # первая мина
+        "SecondMine": "DI1",  # вторая мина
+        "ThirdMine": "DI2",  # третья мина
+        "SirenRelay": "Relay1"  # реле, включающее серену
+    }
+    mine = Mine(host="192.168.255.1", controler="et_7060", config=conf, invfreq=0.1, unit=1) 
+

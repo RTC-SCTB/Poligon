@@ -1,10 +1,10 @@
-from controllers.basecontroller import BaseModbusTcpController
+from poligon.controllers.basecontroller import BaseModbusTcpController
 
 
 class ET_7060(BaseModbusTcpController):
     """ Контроллер ET-7060 от ICP-DAS """
-    def __init__(self, host):
-        BaseModbusTcpController.__init__(self, host)
+    def __init__(self, host, *args, **kwargs):
+        BaseModbusTcpController.__init__(self, host, *args, **kwargs)
         self._actorDict = {
             'Relay0': 0x0,
             'Relay1': 0x1,
