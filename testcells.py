@@ -1,7 +1,8 @@
 from poligon.cells.tower import Tower
-import json
 import time
 import logging
+from poligon.util import checkConfig, findAvaibleCells
+PATH = "poligon/testconfig.json"
 
 logFormatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s]  %(message)s")
 rootLogger = logging.getLogger('test')
@@ -13,8 +14,8 @@ consoleHandler.setFormatter(logFormatter)
 rootLogger.addHandler(consoleHandler)
 rootLogger.setLevel(logging.INFO)
 
-with open("poligon/testconfig.json", "r") as file:
-    data = json.load(file)
+checkConfig(PATH, withCreate=True, logger=rootLogger)
+data = findAvaibleCells(PATH, logger=rootLogger)
 
 tower = Tower(host=data["Tower"][0]["ip"], controller=data["Tower"][0]["controller"],
               config=data["Tower"][0]["connection"],
@@ -22,5 +23,4 @@ tower = Tower(host=data["Tower"][0]["ip"], controller=data["Tower"][0]["controll
 tower.start()
 
 while True:
-    #print(tower._towerHandle.isRedButtonPress())
     time.sleep(0.1)

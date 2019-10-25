@@ -63,18 +63,32 @@ def ping(host):
 
 def findAvaibleCells(conffile, logger=None):
     """ Поиск доступных испытаний """
+    out = {}
+
     with open(conffile, "r") as file:
         data = json.load(file)
 
-    for tower in data["Tower"]:
-        if ping(tower["ip"]):
-            print("Tower with ip:{ip} is avaible".format(ip=tower["ip"]))
-        else:
-            print("Tower with ip:{ip} is not avaible".format(ip=tower["ip"]))
+    if logger is not None:
+        logger.info("Проверка наличия в сети испытаний из файла [{f}]".format(f=conffile))
+
+    for key in data.keys():
+        for i, cell in enumerate(data[key]):
+            if ping(cell["ip"]):
+                if out.get(key) is None:
+                    out.update({key: [cell]})
+                else:
+                    out[key].append(cell)
+
+                if logger is not None:
+                    logger.info("[{n}] host is up: [{ip}]".format(n=cell["name"], ip=cell["ip"]))
+            else:
+                if logger is not None:
+                    logger.info("[{n}] host is down: [{ip}]".format(n=cell["name"], ip=cell["ip"]))
+
+    return out
 
 
 if __name__ == "__main__":
-    # findAvaibleCells("testconfig.json")
     import logging
 
     logFormatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s]  %(message)s")
@@ -88,3 +102,5 @@ if __name__ == "__main__":
     rootLogger.setLevel(logging.INFO)
 
     checkConfig("testconfig.json", logger=rootLogger, withCreate=True)
+
+    print(findAvaibleCells("testconfig.json", logger=rootLogger))
