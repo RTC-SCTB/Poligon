@@ -42,15 +42,21 @@ class _MineHandle:
 
 class Mine(BaseCell):
     """ Класс автономного испытания - мины """
+    def __init__(self, host, controller, config=_baseConfig, invfreq=0.2, *args, **kwargs):
+        BaseCell.__init__(self, host, controller, config, invfreq, *args, **kwargs)
 
-    def __init__(self, host, controler, config=_baseConfig, invfreq=0.2, *args, **kwargs):
+        if self._logger is not None:
+            self._logger.info("[{n}]: Проверка ключей-параметров испытания, указанных в конфигурации".format(n=self.name))
         err = [attr for attr in _MineHandle.configList if attr not in config]  # проверка конфигурации(первая)
         if len(err) != 0:
+            if self._logger is not None:
+                self._logger.error("[{n}]: В конфигурации не были указаны следующие параметры: {err}".format(n=self.name,
+                                                                                                             err=err))
             raise AttributeError("В конфигурации не были указаны следующие параметры: {err}".format(err=err))
+        if self._logger is not None:
+            self._logger.info("[{n}]: Проверка прошла успешно, все ключи указаны".format(n=self.name))
 
-        BaseCell.__init__(self, host, controler, config, invfreq, *args, **kwargs)
         self._mineHandle = _MineHandle(self._controller, config)  # создаем экземляр handle
-
         self._time = time.time()  # таймер
         self._firstMineActiveFlag = True  # флаг - показывающий активна ли первая мина
         self._secondMineActiveFlag = True  # флаг - показывающий активна ли  вторая мина
@@ -88,14 +94,14 @@ if __name__ == "__main__":
     import time
 
     # 1 тест
-    """
+
     # обычный пуск
     mine = Mine(host="192.168.255.1", controler="et_7060", invfreq=0.1, unit=1)
     mine.start()
 
     while True:
         time.sleep(0.5)
-    """
+
 
     # 2 тест
     """

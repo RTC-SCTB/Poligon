@@ -78,12 +78,20 @@ class _ElevatorStates:
 
 class Elevator(BaseCell):
     """ Класс автономного испытания - подъемник """
-    def __init__(self, host, controler, config=_baseConfig, invfreq=0.2, *args, **kwargs):
+    def __init__(self, host, controller, config=_baseConfig, invfreq=0.2, *args, **kwargs):
+        BaseCell.__init__(self, host, controller, config, invfreq, *args, **kwargs)
+
+        if self._logger is not None:
+            self._logger.info("[{n}]: Проверка ключей-параметров испытания, указанных в конфигурации".format(n=self.name))
         err = [attr for attr in _ElevatorHandle.configList if attr not in config]  # проверка конфигурации(первая)
         if len(err) != 0:
+            if self._logger is not None:
+                self._logger.error("[{n}]: В конфигурации не были указаны следующие параметры: {err}".format(n=self.name,
+                                                                                                             err=err))
             raise AttributeError("В конфигурации не были указаны следующие параметры: {err}".format(err=err))
+        if self._logger is not None:
+            self._logger.info("[{n}]: Проверка прошла успешно, все ключи указаны".format(n=self.name))
 
-        BaseCell.__init__(self, host, controler, config, invfreq, *args, **kwargs)
         self._elevatorHandle = _ElevatorHandle(self._controller, config)  # создаем экземляр handle подъемника
         self._elevatorState = _ElevatorStates.STOP  # начальное состояние лифта
 
