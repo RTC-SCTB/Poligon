@@ -31,7 +31,8 @@ class BaseCell(threading.Thread):
         if isinstance(controller, BaseModbusTcpController):  # если экземпляр контроллера уже создан
             self._controller = controller
             if self._logger is not None:
-                self._logger.info("[{n}]: Указанный контроллер [{c}] найден".format(n=self.name, c=controller.__repr__()))
+                self._logger.info(
+                    "[{n}]: Указанный контроллер [{c}] найден".format(n=self.name, c=controller.__repr__()))
         elif controller in availableControllers:  # если предложенный контроллер(строка) есть в словаре доступных
             # контроллеров
             self._controller = availableControllers[controller](self._host, *args, **kwargs)  # создаем экземпляр
@@ -44,7 +45,8 @@ class BaseCell(threading.Thread):
             raise ValueError("Невозможно найти оболочку для данного контроллера: {c}".format(c=controller))
 
         if self._logger is not None:
-            self._logger.info("[{n}]: Проверка наличия выходов контролера, указанных в конфигурации".format(n=self.name))
+            self._logger.info(
+                "[{n}]: Проверка наличия выходов контролера, указанных в конфигурации".format(n=self.name))
         for item in self._config.values():  # проверка на допустимость конфигурации
             if item not in self._controller.actorDict:
                 if self._logger is not None:
@@ -64,6 +66,18 @@ class BaseCell(threading.Thread):
 
     def run(self):
         """ тут производится обновление """
+        if self._logger is not None:
+            self._logger.info("[{n}]: Попытка запуска испытания".format(n=self.name))
+        try:
+            self.reset()
+        except ConnectionException:
+            if self._logger is not None:
+                self._logger.error("[{n}]: Невозможно подключиться к хосту [{h}]".format(n=self.name, h=self._host))
+            raise ConnectionException("Не удалось подключиться к хосту {h}".format(h=self._host))
+
+        if self._logger is not None:
+            self._logger.info("[{n}]: Испытание запущено".format(n=self.name))
+
         try:
             while not self.__exit:
                 self._update()
@@ -76,25 +90,6 @@ class BaseCell(threading.Thread):
             if self._logger is not None:
                 self._logger.error("[{n}]: Невозможно подключиться к хосту [{h}]".format(n=self.name, h=self._host))
             raise ConnectionException("Не удалось подключиться к хосту {h}".format(h=self._host))
-        else:
-            if self._logger is not None:
-                self._logger.error("[{n}]: Внутреняя ошибка, необходим перезапуск испытания".format(n=self.name))
-            raise RuntimeError("Внутреняя ошибка")
-
-    def start(self):
-        """ запуск работы испытания """
-        if self._logger is not None:
-            self._logger.info("[{n}]: Попытка запуска испытания".format(n=self.name))
-        try:
-            self.reset()
-        except ConnectionException:
-            if self._logger is not None:
-                self._logger.error("[{n}]: Невозможно подключиться к хосту [{h}]".format(n=self.name, h=self._host))
-            raise ConnectionException("Не удалось подключиться к хосту {h}".format(h=self._host))
-
-        threading.Thread.start(self)
-        if self._logger is not None:
-            self._logger.info("[{n}]: Испытание запущено".format(n=self.name))
 
     def exit(self):
         """ функция выхода из потока """

@@ -1,7 +1,8 @@
 from poligon.cells.tower import Tower
 import time
 import logging
-from poligon.util import checkConfig, findAvaibleCells
+from poligon.util import checkConfig, findAvaibleCells, parseConfig
+
 PATH = "poligon/testconfig.json"
 
 logFormatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s]  %(message)s")
@@ -14,13 +15,41 @@ consoleHandler.setFormatter(logFormatter)
 rootLogger.addHandler(consoleHandler)
 rootLogger.setLevel(logging.INFO)
 
-checkConfig(PATH, withCreate=True, logger=rootLogger)
-data = findAvaibleCells(PATH, logger=rootLogger)
+cells = None
 
-tower = Tower(host=data["Tower"][0]["ip"], controller=data["Tower"][0]["controller"],
-              config=data["Tower"][0]["connection"],
-              invfreq=data["Tower"][0]["invfreq"], logger=rootLogger, name="Tower")  # создаем экземпляр башни
-tower.start()
+
+def realize():
+    global cells
+    if cells is not None:
+        raise BrokenPipeError("Объекты испытаний cells уже созданы")
+    global rootLogger
+
+    checkConfig(PATH, withCreate=True, logger=rootLogger)
+    data = findAvaibleCells(PATH, logger=rootLogger)
+    cells = parseConfig(data, logger=rootLogger)
+    for cell in cells:
+        cell.start()
+
+
+def unrealize():
+    global cells
+    if cells is None:
+        return
+
+    for cell in cells:
+        cell.exit()
+        time.sleep(0.5)
+        del cell
+    del cells
+    cells = None
+
+
+def reset():
+    unrealize()
+    realize()
+
 
 while True:
-    time.sleep(0.1)
+    reset()
+    time.sleep(10)
+    print("test reset")

@@ -88,6 +88,19 @@ def findAvaibleCells(conffile, logger=None):
     return out
 
 
+def parseConfig(confDict, logger=None):
+    """ Создание экземпляров испытаний из полученного словаря """
+    cells = []
+    for cellKey in confDict.keys():
+        cellClass = availableCells[cellKey]
+        for cellDesc in confDict[cellKey]:
+            cell = cellClass(host=cellDesc["ip"], controller=cellDesc["controller"],
+                             config=cellDesc["connection"], invfreq=cellDesc["invfreq"],
+                             logger=logger, name=cellDesc["name"])
+            cells.append(cell)
+    return cells
+
+
 if __name__ == "__main__":
     import logging
 
