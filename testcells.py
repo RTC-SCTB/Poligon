@@ -1,19 +1,16 @@
 from poligon.cells.tower import Tower
 import time
-import logging
 from poligon.util import checkConfig, findAvaibleCells, parseConfig
+import logging.config
+import datetime
 
-PATH = "poligon/testconfig.json"
+PATH = "testconfig.json"
 
-logFormatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s]  %(message)s")
-rootLogger = logging.getLogger('test')
-fileHandler = logging.FileHandler("{0}.log".format('example'))
-fileHandler.setFormatter(logFormatter)
-rootLogger.addHandler(fileHandler)
-consoleHandler = logging.StreamHandler()
-consoleHandler.setFormatter(logFormatter)
-rootLogger.addHandler(consoleHandler)
-rootLogger.setLevel(logging.INFO)
+logging.config.fileConfig('logging.conf')
+rootLogger = logging.getLogger('poligonLogger')
+
+rootLogger.info("Starting session on: ")
+rootLogger.info(str(datetime.datetime.now()))
 
 cells = None
 
