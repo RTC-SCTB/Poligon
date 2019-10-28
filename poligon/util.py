@@ -34,7 +34,8 @@ def checkConfig(conffile, logger=None, withCreate=False):
 
     if not withCreate:  # была произведена только предварительная проверка, без проверки подключения
         if logger is not None:
-            logger.info("Предварительная проверка конфигурационного файла, без проверки подключения, завершена")
+            logger.info("Предварительная проверка конфигурационного файла, без проверки подключения")
+            logger.info("Проверка завершена успешно")
         return True
 
     for key in data.keys():
@@ -46,6 +47,7 @@ def checkConfig(conffile, logger=None, withCreate=False):
 
     if logger is not None:
         logger.info("Произведена полная проверка конфигурационного файла с проверкой подключения")
+        logger.info("Проверка завершена успешно")
     return True
 
 
