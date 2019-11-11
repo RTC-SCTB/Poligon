@@ -1,10 +1,9 @@
-from poligon.cells.tower import Tower
 import time
 from poligon.util import checkConfig, findAvaibleCells, parseConfig
 import logging.config
 import datetime
 
-PATH = "testconfig.json"
+PATH = "config.json"
 
 logging.config.fileConfig('logging.conf')
 rootLogger = logging.getLogger('poligonLogger')
