@@ -1,8 +1,24 @@
 {
   "Tower": [
     {
-      "ip": "192.168.42.10",
+      "ip": "192.168.42.30",
       "name": "Tower0",
+      "controller": "et_7060",
+      "invfreq": 0.1,
+      "connection":
+      {
+        "FirstRedButton": "DI1",
+        "SecondRedButton": "DI3",
+        "FirstGreenButton": "DI0",
+        "SecondGreenButton": "DI2",
+        "RedLedRelay": "Relay1",
+        "GreenLedRelay": "Relay2",
+        "BlueLedRelay": "Relay0"
+      }
+    },
+    {
+      "ip": "192.168.42.31",
+      "name": "Tower1",
       "controller": "et_7060",
       "invfreq": 0.1,
       "connection":
@@ -33,7 +49,7 @@
 
   "Elevator": [
     {
-      "ip": "192.168.42.30",
+      "ip": "192.168.42.10",
       "name": "Elevator0",
       "controller": "et_7060",
       "invfreq": 0.1,
