@@ -35,7 +35,7 @@
 
   "Hatch": [
   {
-    "ip": "192.168.42.20",
+    "ip": "192.168.42.40",
     "name": "Hatch0",
     "controller": "et_7060",
     "invfreq": 0.1,
@@ -68,7 +68,7 @@
 
   "Hypnodisk": [
     {
-      "ip": "192.168.42.40",
+      "ip": "192.168.42.50",
       "name": "Hypnodisk0",
       "controller": "et_7060",
       "invfreq": 0.1,
@@ -81,7 +81,7 @@
 
   "Mine": [
     {
-      "ip": "192.168.42.50",
+      "ip": "192.168.42.20",
       "name": "Mine0",
       "controller": "et_7060",
       "invfreq": 0.1,

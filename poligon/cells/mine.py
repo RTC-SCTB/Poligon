@@ -10,7 +10,7 @@ _baseConfig = {  # базовый конфигурационный словар�
     "SirenRelay": "Relay1"  # реле, включающее серену
 }
 
-_blinkTime = 1.0  # время, на сколько зажигается сирена, если нажата мина
+_blinkTime = 0.9  # время, на сколько зажигается сирена, если нажата мина
 
 
 class _MineHandle:
@@ -69,12 +69,12 @@ class Mine(BaseCell):
             self._firstMineActiveFlag = False
             self._time = time.time()
 
-        if self._mineHandle.isSecondMineActive() and self._firstMineActiveFlag:  # если нажата мина и она была активна
+        if self._mineHandle.isSecondMineActive() and self._secondMineActiveFlag:  # если нажата мина и она была активна
             self._mineHandle.sirenState = True
             self._secondMineActiveFlag = False
             self._time = time.time()
 
-        if self._mineHandle.isThirdMineActive() and self._firstMineActiveFlag:  # если нажата мина и она была активна
+        if self._mineHandle.isThirdMineActive() and self._thirdMineActiveFlag:  # если нажата мина и она была активна
             self._mineHandle.sirenState = True
             self._thirdMineActiveFlag = False
             self._time = time.time()

@@ -38,7 +38,7 @@ def unrealize():
     rootLogger.info("Удаление экземпляров испытаний полигона")
     for cell in cells:
         cell.exit()
-        time.sleep(0.5)
+        time.sleep(0.2)
         del cell
     del cells
     cells = None
