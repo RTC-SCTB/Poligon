@@ -8,7 +8,7 @@ _baseConfig = {  # базовый конфигурационный словар�
     "SirenRelay": "Relay1",  # реле, включающее серену
 }
 
-_timeToDie = 5  # время задержки перед открытим люка в секундах
+_timeToDie = 4  # время задержки перед открытим люка в секундах
 
 
 class _HatchHandle:
@@ -20,7 +20,7 @@ class _HatchHandle:
         self._config = config
 
     def isBankInPlace(self):    # на месте ли банка
-        return self._controller.__getattr__(self._config["Bank"])
+        return not self._controller.__getattr__(self._config["Bank"])
 
     @property
     def sirenState(self):
@@ -61,12 +61,14 @@ class Hatch(BaseCell):
         self._hatchHandle = _HatchHandle(self._controller, config)  # создаем экземляр handle подъемника
         self._time = time.time()   # таймер
         self._hatchActivatedFlag = False    # флаг - показывающий было ли активировано открытие люка
+        self._bankBeFoundFlag = False     # флаг - была ли поставлена банка ранее
 
     def _update(self):
         """ метод обновления логики """
-        if not self._hatchHandle.isBankInPlace():
+        if not self._hatchHandle.isBankInPlace() and self._bankBeFoundFlag:
             self._hatchActivatedFlag = True     # активируем флаг от открытии люка
             self._hatchHandle.sirenState = True     # включаем сирену
+            self._bankBeFoundFlag = False
             self._time = time.time()    # засекаем время
 
         if self._hatchActivatedFlag and ((time.time() - self._time) > _timeToDie):
@@ -74,6 +76,10 @@ class Hatch(BaseCell):
             self._hatchHandle.hatchState = False    # открываем люк
             time.sleep(1)     # спим, чтоб люк успел открыться
             self._hatchHandle.sirenState = False  # выключаем сирену
+
+        if self._hatchHandle.isBankInPlace() and not self._hatchActivatedFlag:
+            self._bankBeFoundFlag = True
+            self._hatchHandle.hatchState = True
 
     def reset(self):
         """ сброс всей логики """
