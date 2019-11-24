@@ -1,0 +1,85 @@
+{
+  "Tower": [
+    {
+      "ip": "192.168.42.30",
+      "name": "Tower0",
+      "controller": "et_7060",
+      "invfreq": 0.1,
+      "connection":
+      {
+        "FirstRedButton": "DI1",
+        "SecondRedButton": "DI3",
+        "FirstGreenButton": "DI0",
+        "SecondGreenButton": "DI2",
+        "RedLedRelay": "Relay1",
+        "GreenLedRelay": "Relay2",
+        "BlueLedRelay": "Relay0"
+      }
+    }],
+
+  "Hatch": [
+  {
+    "ip": "192.168.42.40",
+    "name": "Hatch0",
+    "controller": "et_7060",
+    "invfreq": 0.1,
+    "connection":
+    {
+      "Bank": "DI0",
+      "HatchRelay": "Relay0",
+      "SirenRelay": "Relay1"
+    }
+  }],
+
+  "Elevator": [
+    {
+      "ip": "192.168.42.10",
+      "name": "Elevator0",
+      "controller": "et_7060",
+      "invfreq": 0.1,
+      "connection":
+      {
+        "UpSwitch": "DI1",
+        "DownSwitch": "DI0",
+        "UpButton": "DI2",
+        "DownButton": "DI3",
+        "StopButton": "DI4",
+        "SirenRelay": "Relay0",
+        "MotorStateRelay": "Relay1",
+        "MotorDirRelay": "Relay2"
+      }
+    },
+    {
+      "ip": "192.168.42.11",
+      "name": "Elevator1",
+      "controller": "et_7060",
+      "invfreq": 0.1,
+      "connection":
+      {
+        "UpSwitch": "DI1",
+        "DownSwitch": "DI0",
+        "UpButton": "DI2",
+        "DownButton": "DI3",
+        "StopButton": "DI4",
+        "SirenRelay": "Relay0",
+        "MotorStateRelay": "Relay1",
+        "MotorDirRelay": "Relay2"
+      }
+    }],
+
+  "Mine": [
+    {
+      "ip": "192.168.42.20",
+      "name": "Mine0",
+      "controller": "et_7060",
+      "invfreq": 0.1,
+      "connection":
+      {
+        "FirstMine": "DI0",
+        "SecondMine": "DI1",
+        "ThirdMine": "DI2",
+        "SirenRelay": "Relay1"
+      }
+    }]
+
+}
